@@ -15,7 +15,7 @@ tic
 originaldate='10-May-2017';
 
 %specify working directory
-folder_path='C:\Users\Rafael\Documents\UBC\Thesis UCP\Data\2017\03mar\27\'; 
+folder_path='C:\Users\rafae\Documents\Thesis UCP\Data\2017\03mar\27\'; 
 %the folder must include 
 %   (1) a folder named 'ps' that includes the pulse-shape files
 %   (2) a second folder named 'sfi'
