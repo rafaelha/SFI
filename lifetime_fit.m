@@ -30,8 +30,6 @@ folder_path='C:\Users\rafae\Documents\Thesis UCP\Data\2017\03mar\27\';
 %equally spaced data points. The following values have been calculated to achieve that: [0 5 7 15 23 31 40 49 59 69 79 90 102 114 127 141 156 172 190 209 230 254 281 312 348 391 447 524 647 800 1000]
 dw1w2=[0 5 7 15 23 31 40 49 59 69 79 90 102 114 127 141 156 172 190 209 230 254 281 312 348 391 447 524 647 800 1000];
 
-lifetime = 206; %lifetime of first excited state in ns
-
 PQN=49; %principle quantum number
 
 nt=100; %number of traces per w1w2-delay-measurement (as set in the LabView program)
@@ -76,7 +74,7 @@ end
 [G, f_order]=sort(G);
 
 
-den=1*exp(-dw1w2/lifetime); %rel. density values
+den=1*exp(-dw1w2/206); %rel. density values
 
 nG=length(G); %number of gridpositions
 nD=length(dw1w2); %number of w1w2-delays
@@ -95,7 +93,7 @@ plasma_error=zeros(n_bins+1,nG);
 rydberg_signal=zeros(n_bins+1,nG); %average Rydberg signal for all ramp delays
 rydberg_error=zeros(n_bins+1,nG);
 
-for i=1:    nG
+for i=1:nG
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     %%%%%%%%%          Load all data                %%%%%%
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -120,18 +118,36 @@ for i=1:    nG
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     %%%%%%%%%       Density Calibration             %%%%%%
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    lifetime = 206;
+    mint = 0.1 * lifetime;
+    maxt = 3 * lifetime;
+    lt = linspace(mint, maxt, 1000);
+    
+    best_tau = 0;
+    best_err = 1e10;
+    for tau  = lt
+        den=1*exp(-dw1w2/tau);
+        f = polyfit(av_sig',den',1);
+        yfit = polyval(f,av_sig);
+        err = norm(yfit-den)^2;
+        if err < best_err
+            best_err = err;
+            best_tau = tau;
+        end
+    end
+    
+    den=1*exp(-dw1w2/tau);
     errorbar(av_sig, den, 0*std_err_sig, 0*std_err_sig,std_err_sig,std_err_sig,'.') %plot total signal over rel. density
     xlim([min(av_sig)*1.05 max(av_sig)*1.05])
     ylim([min(den)*1.05 max(den)*1.05])
-    f = polyfit(av_sig',den',2); %fit with polynomial of specified order
+    f = polyfit(av_sig',den',1); %fit with polynomial of specified order
     x = linspace(min(av_sig)-300,max(av_sig)+300);
     yfit = polyval(f,x);
     hold on;
     plot(x,yfit,'r-.'); %plot the fit in same graph
     xlabel('count','Interpreter','latex')
     ylabel('rel. density','Interpreter','latex')
-    title(['Density Calibration, $\tau=$',num2str(lifetime),'ns'] ,'Interpreter','latex');
-    
+    title(['Density Calibration, $\tau=$',num2str(tau),'ns'] ,'Interpreter','latex');
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     %%%%%%%%%              Binning                  %%%%%%
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -234,9 +250,10 @@ for i=1:    nG
 %     ylabel('rel. density','Interpreter','latex');
 %     title('Normalized by Density','Interpreter','latex');
 % 
+   
 %     %save as pdf
       filename=['sfi_n',num2str(PQN), '_', num2str(n_bins)];
-      export_fig([filename,'_spectra'], '-pdf', '-append')
+      export_fig([filename,'_spectra_lifetimefit'], '-pdf', '-append')
       close
 end
 %%
@@ -266,7 +283,7 @@ for k=flip(1:(n_bins+1))
 %     xlim([-1,21])
      
 
-    export_fig([filename,'_plasma_rydber_evolution'], '-pdf', '-append')
+    export_fig([filename,'_plasma_rydber_evolution_lifetimefit'], '-pdf', '-append')
     close
 end
 toc
