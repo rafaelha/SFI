@@ -30,6 +30,8 @@ folder_path='C:\Users\rafae\Documents\Thesis UCP\Data\2017\03mar\27\';
 %equally spaced data points. The following values have been calculated to achieve that: [0 5 7 15 23 31 40 49 59 69 79 90 102 114 127 141 156 172 190 209 230 254 281 312 348 391 447 524 647 800 1000]
 dw1w2=[0 5 7 15 23 31 40 49 59 69 79 90 102 114 127 141 156 172 190 209 230 254 281 312 348 391 447 524 647 800 1000];
 
+lifetime = 206; %lifetime of first excited state in ns
+
 PQN=49; %principle quantum number
 
 nt=100; %number of traces per w1w2-delay-measurement (as set in the LabView program)
@@ -74,7 +76,7 @@ end
 [G, f_order]=sort(G);
 
 
-den=1*exp(-dw1w2/206); %rel. density values
+den=1*exp(-dw1w2/lifetime); %rel. density values
 
 nG=length(G); %number of gridpositions
 nD=length(dw1w2); %number of w1w2-delays
@@ -234,8 +236,8 @@ for i=1:nG
 % 
 %     %save as pdf
       filename=['sfi_n',num2str(PQN), '_', num2str(n_bins)];
-%       export_fig([filename,'_spectra'], '-pdf', '-append')
-%       close
+      export_fig([filename,'_spectra'], '-pdf', '-append')
+      close
 end
 %%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -264,8 +266,8 @@ for k=flip(1:(n_bins+1))
 %     xlim([-1,21])
      
 
-%     export_fig([filename,'_plasma_rydber_evolution'], '-pdf', '-append')
-%     close
+    export_fig([filename,'_plasma_rydber_evolution'], '-pdf', '-append')
+    close
 end
 toc
 
